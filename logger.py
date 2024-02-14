@@ -14,6 +14,3 @@ def logs():
 
     logger.addHandler(handler1)
     logger.addHandler(handler2)
-
-
-
