@@ -16,7 +16,7 @@ logs()
 class VK_backup:
     base_url_vk = 'https://api.vk.com/method'
     base_url_ya = 'https://cloud-api.yandex.net'
-    params_vk = {'access_token': 'Your_token', 'v': '5.131'}
+    params_vk = {'access_token': 'Your token', 'v': '5.131'}
 
     def __init__(self, vk_id, ya_token):
         self.vk_id = vk_id
@@ -44,7 +44,7 @@ class VK_backup:
         """
         valid_info = {}
         for item in self.get_photos_info()['response']['items']:
-            if item['likes']['count'] not in valid_info:
+            if f'{item['likes']['count']}' not in valid_info:
                 valid_info[f'{item['likes']['count']}'] = item['sizes'][-1]['url'], item['sizes'][-1]['type']
             else:
                 valid_info[f'{item['likes']['count']}, {item['date']}'] = (item['sizes'][-1]['url'],
@@ -107,7 +107,8 @@ class VK_backup:
 
 
 if __name__ == '__main__':
-    token_ya = 'Your_token'
+    token_ya = 'Your token'
     id_ = 'Your id'
     backup = VK_backup(id_, token_ya)
     backup.backup()
+
