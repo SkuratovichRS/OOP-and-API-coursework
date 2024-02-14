@@ -111,4 +111,3 @@ if __name__ == '__main__':
     id_ = 'Your id'
     backup = VK_backup(id_, token_ya)
     backup.backup()
-
