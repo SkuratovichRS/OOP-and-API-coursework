@@ -63,21 +63,6 @@ class VK_backup:
         if response.status_code != 201:
             raise Exception(f'wrong response, status code = {response.status_code}')
 
-    def get_upload_url(self, path):
-        """
-        Возвращает url для загрузки фото на яндекс диск
-        :param path: str
-        :return: str
-        """
-        url_for_url = f'{self.base_url_ya}/v1/disk/resources/upload'
-        params = {'path': path}
-        headers = self.headers_ya
-        response = requests.get(url_for_url, params=params, headers=headers)
-        if response.status_code != 200:
-            raise Exception(f'wrong response, status code = {response.status_code}')
-        response_JSON = response.json()
-        return response_JSON['href']
-
     def backup(self, count=5, path='vk_profile_photos'):
         """
         Сохраняет загруженные фото на яндекс диске и создаёт JSON файл с инфо по фото
@@ -90,12 +75,11 @@ class VK_backup:
         self.create_dir(path)
         for name, url_size in self.get_valid_photos_info().items():
             if loaded < count:
-                response = requests.get(url_size[0])
-                with open(f'{name}.jpg', "wb") as f:
-                    f.write(response.content)
-                upload_url = self.get_upload_url(f'{path}/{name}.jpg')
-                with open(f'{name}.jpg', 'rb') as f:
-                    requests.put(upload_url, files={"file": f})
+                upload_url = f'{self.base_url_ya}/v1/disk/resources/upload'
+                params = {'path': f'{path}/{name}', 'url': url_size[0]}
+                response = requests.post(upload_url, params=params, headers=self.headers_ya)
+                if response.status_code != 202:
+                    raise Exception(f'wrong response, status code = {response.status_code}')
                 loaded += 1
                 data_for_JSON.append({'file_name': name, 'size': url_size[1]})
             else:
