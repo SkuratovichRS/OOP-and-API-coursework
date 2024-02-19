@@ -10,7 +10,7 @@ config.read("tokens.ini")
 
 class VkApi:
     base_url = 'https://api.vk.com/method'
-    params_vk = {'access_token': config['TOKENS']['vk_token'], 'v': '5.131'}
+    params = {'access_token': config['TOKENS']['vk_token'], 'v': '5.131'}
 
     def __init__(self, vk_id):
         self.vk_id = vk_id
@@ -20,8 +20,10 @@ class VkApi:
         Возвращает полную информацию по фото в JSON формате
         :return: JSON
         """
-        self.params_vk.update({'owner_id': self.vk_id, 'album_id': 'profile', 'extended': 1})
-        response = requests.get(f'{self.base_url}/photos.get', params=self.params_vk)
+        if not self.vk_id.isdigit():
+            self.vk_id = self.get_id_from_screen_name()
+        self.params.update({'owner_id': self.vk_id, 'album_id': 'profile', 'extended': 1})
+        response = requests.get(f'{self.base_url}/photos.get', params=self.params)
         if response.status_code != 200:
             raise Exception(f'wrong response, status code = {response.status_code}')
         response_json = response.json()
@@ -42,3 +44,15 @@ class VkApi:
                 valid_info[f'{item['likes']['count']}, {item['date']}'] = (item['sizes'][-1]['url'],
                                                                            item['sizes'][-1]['type'])
         return valid_info
+
+    def get_id_from_screen_name(self):
+        """
+        Возвращает цифровой id пользователя по screen_name
+        :return: int
+        """
+        self.params.update({'screen_name': self.vk_id})
+        response = requests.get(f'{self.base_url}/utils.resolveScreenName', params=self.params)
+        if response.status_code != 200:
+            raise Exception(f'wrong response, status code = {response.status_code}')
+        response_json = response.json()
+        return response_json['response']['object_id']
