@@ -57,4 +57,6 @@ class VkApi:
         response_json = response.json()
         if list(response_json.keys())[0] == 'error':
             raise Exception([response_json['error']['error_msg']])
+        if not response_json['response']:
+            raise Exception('incorrect id or screen_name')
         return response_json['response']['object_id']
