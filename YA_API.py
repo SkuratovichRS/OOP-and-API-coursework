@@ -12,7 +12,8 @@ id_ = input('Введите Ваш ID или screen_name без пробелов
 count_ = input('Введите количество копируемых фото (по умолчанию 5)')
 if count_ == "":
     count_ = 5
-count_ = int(count_)
+else:
+    count_ = int(count_)
 
 
 class YaApi:
