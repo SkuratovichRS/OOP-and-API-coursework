@@ -8,6 +8,13 @@ logs()
 config = configparser.ConfigParser()
 config.read("tokens.ini")
 
+id_ = input('Введите Ваш ID или screen_name без пробелов')
+count_ = input('Введите количество копируемых фото (по умолчанию 5)')
+if count_ == "":
+    count_ = 5
+else:
+    count_ = int(count_)
+
 
 class YaApi:
     base_url = 'https://cloud-api.yandex.net'
@@ -15,7 +22,7 @@ class YaApi:
     def __init__(self, token):
         self.token = token
         self.headers = {'Authorization': self.token}
-        self.user_vk = VkApi
+        self.user_vk = user_vk
 
     def create_dir(self, path):
         """
@@ -29,19 +36,18 @@ class YaApi:
         if response.status_code != 201:
             raise Exception(f'wrong response, status code = {response.status_code}')
 
-    def backup(self, path='vk_profile_photos', file_name='photo_info.json'):
+    def backup(self, count, path='vk_profile_photos', file_name='photo_info.json'):
         """
         Сохраняет загруженные фото на яндекс диске и создаёт JSON файл с инфо по фото
+        :param count: int
         :param path: str
         :param file_name: str
         :return: None
         """
-        id_ = input('Введите Ваш ID')
-        count = int(input('Введите количество копируемых фото'))
         loaded = 0
         data_for_json = []
         self.create_dir(path)
-        for name, url_size in self.user_vk(id_).get_valid_photos_info().items():
+        for name, url_size in self.user_vk.get_valid_photos_info().items():
             if loaded < count:
                 upload_url = f'{self.base_url}/v1/disk/resources/upload'
                 params = {'path': f'{path}/{name}', 'url': url_size[0]}
@@ -58,5 +64,6 @@ class YaApi:
             json.dump(data_for_json, f, indent=4)
 
 
-user = YaApi(config['TOKENS']['ya_token'])
-user.backup()
+user_vk = VkApi(id_)
+user_ya = YaApi(config['TOKENS']['ya_token'])
+user_ya.backup(count_)

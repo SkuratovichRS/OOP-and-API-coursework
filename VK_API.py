@@ -55,4 +55,6 @@ class VkApi:
         if response.status_code != 200:
             raise Exception(f'wrong response, status code = {response.status_code}')
         response_json = response.json()
+        if list(response_json.keys())[0] == 'error':
+            raise Exception([response_json['error']['error_msg']])
         return response_json['response']['object_id']
